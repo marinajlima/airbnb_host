@@ -51,6 +51,8 @@ export function PropertiesView({ data, setData }: Props) {
         reservations: d.reservations.filter((r) => !ids.has(r.id)),
         sent: d.sent.filter((s) => !ids.has(s.reservationId)),
         expenses: d.expenses.filter((e) => e.propertyId !== p.id),
+        incidents: d.incidents.filter((i) => i.propertyId !== p.id),
+        playbook: d.playbook.filter((e) => e.propertyId !== p.id),
       }
     })
   }

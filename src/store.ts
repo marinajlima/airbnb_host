@@ -4,7 +4,14 @@ import { makeSeed } from './seed'
 import { cleaningFor } from './finance'
 
 /** Data saved before Layer 2 had no costs: create the cleaning cost for each existing stay. */
-function migrateV1(old: Omit<AppData, 'version' | 'expenses'>): AppData {
+type V2 = Omit<AppData, 'version' | 'incidents' | 'playbook'> & { version: 2 }
+
+/** Layer 3 added the incident log and playbook, both empty for existing data. */
+function migrateV2(old: V2): AppData {
+  return { ...old, version: 3, incidents: [], playbook: [] }
+}
+
+function migrateV1(old: Omit<V2, 'version' | 'expenses'>): V2 {
   const props = new Map(old.properties.map((p) => [p.id, p]))
   const expenses = old.reservations.flatMap((r) => {
     const p = props.get(r.propertyId)
@@ -20,8 +27,9 @@ function load(): AppData {
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (parsed.version === 2) return parsed as AppData
-      if (parsed.version === 1) return migrateV1(parsed)
+      if (parsed.version === 3) return parsed as AppData
+      if (parsed.version === 2) return migrateV2(parsed)
+      if (parsed.version === 1) return migrateV2(migrateV1(parsed))
     }
   } catch {
     // storage unavailable or corrupted: fall back to demo data

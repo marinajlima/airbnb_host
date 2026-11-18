@@ -9,7 +9,7 @@ import { cleaningFor } from './finance'
 export function makeSeed(t = today()): AppData {
   const d = (n: number) => addDays(t, n)
   const data: AppData = {
-    version: 2,
+    version: 3,
     owners: [
       { id: 'o1', name: 'Ana Duarte', email: 'ana@example.com' },
       { id: 'o2', name: 'Rafael Costa', email: 'rafael@example.com' },
@@ -109,6 +109,23 @@ export function makeSeed(t = today()): AppData {
       { reservationId: 'r5', templateId: 't1', sentOn: d(-3) },
     ],
     expenses: [],
+    incidents: [
+      { id: 'i1', propertyId: 'p1', date: d(-62), category: 'checkinout', situation: 'Late checkout', whatHappened: 'Guests stayed until 13:30 without asking.', howHandled: 'Spoke to them kindly; the cleaning team waited and the next arrival was not affected.', status: 'resolved' },
+      { id: 'i2', propertyId: 'p1', reservationId: 'r1', date: d(-5), category: 'checkinout', situation: 'Late checkout', whatHappened: 'Asked to leave at 15:00 instead of 12:00.', howHandled: 'Allowed until 14:00, since no one was arriving that day.', status: 'resolved' },
+      { id: 'i3', propertyId: 'p1', reservationId: 'r3', date: d(-2), category: 'request', situation: 'Baby cot request', whatHappened: 'Travelling with a baby and asked for a cot.', howHandled: 'Borrowed a cot from a neighbour. Return it after checkout.', status: 'open' },
+      { id: 'i4', propertyId: 'p2', date: d(-30), category: 'maintenance', situation: 'No hot water', whatHappened: 'No hot water in the morning.', howHandled: 'Plumber visit, the boiler valve was replaced.', status: 'resolved' },
+      { id: 'i5', propertyId: 'p2', reservationId: 'r2', date: d(-1), category: 'maintenance', situation: 'No hot water', whatHappened: 'Boiler pressure dropped on the second night.', howHandled: 'João reset the boiler pressure on site.', status: 'resolved' },
+    ],
+    playbook: [
+      {
+        id: 'pb1',
+        situation: 'Late checkout',
+        category: 'checkinout',
+        propertyId: 'all',
+        rule: 'Checkout time is stated in the booking accepted message. If no one arrives that day, allow up to two extra hours at no cost. If someone arrives, decline politely and offer to keep the luggage until they leave.',
+        updatedOn: d(-5),
+      },
+    ],
   }
 
   const props = new Map(data.properties.map((p) => [p.id, p]))

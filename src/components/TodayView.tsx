@@ -10,9 +10,11 @@ interface Props {
   propertyId: string
   onOpenTask: (t: MessageTask) => void
   onTogglePaid: (expenseId: string) => void
+  onResolve: (incidentId: string) => void
+  onOpenPlaybook: () => void
 }
 
-export function TodayView({ data, tasks, propertyId, onOpenTask, onTogglePaid }: Props) {
+export function TodayView({ data, tasks, propertyId, onOpenTask, onTogglePaid, onResolve, onOpenPlaybook }: Props) {
   const now = today()
   const toSend = tasks.filter((t) => t.state === 'overdue' || t.state === 'today')
   const next = tasks.find((t) => t.state === 'upcoming')
@@ -24,6 +26,11 @@ export function TodayView({ data, tasks, propertyId, onOpenTask, onTogglePaid }:
     ...scoped.filter((r) => r.checkIn >= now && r.checkIn <= weekEnd).map((r) => ({ kind: 'Arrival' as const, date: r.checkIn, r })),
     ...scoped.filter((r) => r.checkOut >= now && r.checkOut <= weekEnd).map((r) => ({ kind: 'Departure' as const, date: r.checkOut, r })),
   ].sort((a, b) => a.date.localeCompare(b.date))
+
+  const openIncidents = data.incidents
+    .filter((i) => i.status === 'open' && (propertyId === 'all' || i.propertyId === propertyId))
+    .sort((a, b) => a.date.localeCompare(b.date))
+  const stays = new Map(data.reservations.map((r) => [r.id, r]))
 
   const arrivals = movements.filter((m) => m.kind === 'Arrival').length
   const departures = movements.length - arrivals
@@ -67,6 +74,34 @@ export function TodayView({ data, tasks, propertyId, onOpenTask, onTogglePaid }:
         <p className="hint">Each line is a stay. Dots are guest messages: click one to read and send it.</p>
         <TideChart data={data} tasks={tasks} propertyId={propertyId} onOpenTask={onOpenTask} />
       </section>
+
+      {openIncidents.length > 0 && (
+        <section aria-labelledby="open-h">
+          <h2 id="open-h">Open incidents</h2>
+          <ul className="rows">
+            {openIncidents.map((i) => {
+              const stay = i.reservationId ? stays.get(i.reservationId) : undefined
+              return (
+                <li key={i.id} className="row">
+                  <span className="date-chip">
+                    <b>{fmtShort(i.date)}</b>
+                    <small>{relative(i.date)}</small>
+                  </span>
+                  <div className="row-main">
+                    <strong>{i.situation}</strong>
+                    <span className="muted">
+                      {props.get(i.propertyId)?.name}
+                      {stay ? `, ${stay.guestName}` : ''}. {i.howHandled}
+                    </span>
+                  </div>
+                  <button className="btn" onClick={() => onResolve(i.id)}>Mark resolved</button>
+                </li>
+              )
+            })}
+          </ul>
+          <button className="link-button" onClick={onOpenPlaybook}>Open the playbook</button>
+        </section>
+      )}
 
       <section aria-labelledby="moves-h">
         <h2 id="moves-h">Arrivals and departures this week</h2>

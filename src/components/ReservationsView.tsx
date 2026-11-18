@@ -52,6 +52,8 @@ export function ReservationsView({ data, setData, propertyId }: Props) {
       reservations: d.reservations.filter((x) => x.id !== r.id),
       sent: d.sent.filter((s) => s.reservationId !== r.id),
       expenses: d.expenses.filter((e) => e.reservationId !== r.id),
+      // incidents stay in the log; they just lose the link to the deleted stay
+      incidents: d.incidents.map((i) => (i.reservationId === r.id ? { ...i, reservationId: undefined } : i)),
     }))
   }
 

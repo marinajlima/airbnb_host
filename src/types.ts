@@ -65,12 +65,40 @@ export interface Expense {
   paid: boolean
 }
 
+export type IncidentCategory = 'checkinout' | 'request' | 'maintenance' | 'damage' | 'cleaning' | 'noise' | 'other'
+
+export interface Incident {
+  id: ID
+  propertyId: ID
+  reservationId?: ID
+  date: string
+  category: IncidentCategory
+  /** Short name of the situation. Incidents with the same situation are counted together. */
+  situation: string
+  whatHappened: string
+  howHandled: string
+  status: 'open' | 'resolved'
+}
+
+export interface PlaybookEntry {
+  id: ID
+  situation: string
+  category: IncidentCategory
+  /** What to do next time. */
+  rule: string
+  /** 'all' or a single property. */
+  propertyId: ID | 'all'
+  updatedOn: string
+}
+
 export interface AppData {
-  version: 2
+  version: 3
   owners: Owner[]
   properties: Property[]
   reservations: Reservation[]
   templates: MessageTemplate[]
   sent: SentMark[]
   expenses: Expense[]
+  incidents: Incident[]
+  playbook: PlaybookEntry[]
 }

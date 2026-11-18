@@ -18,11 +18,14 @@ That works for one house. It breaks the moment a second owner asks for help. Sta
 - **Message timeline.** Each template has a rule such as "7 days before check-in". The app schedules it for every reservation and fills in guest name, dates, times and the person who welcomes guests. Copy the text, send it on Airbnb, mark it as sent.
 - **Reservations.** Add, edit and delete stays. Flags guests above the number included in the price, so extra guest fees are never missed.
 - **Finance.** Month by month: payouts, costs, result and occupancy for each property and owner. Each reservation creates its cleaning cost on checkout day, and the Today view lets you mark it as paid. Other costs (repairs, supplies, bills) are added by hand.
+- **Playbook.** Log what went wrong in a stay and how it was handled. When the same situation happens twice at a property with no rule yet, the app asks you to write one, showing how it was handled each time. Logging an incident that already has a rule shows the rule as you type.
 - **Properties and owners.** Each property has its own house rules, currency, cleaning cost and on-site host, grouped by owner.
 
 ![Message drawer with a filled-in template ready to copy](docs/message.png)
 
 ![Finance view: monthly payouts, costs and result per property](docs/finance.png)
+
+![Playbook: a repeated situation waiting for a rule, rules, and the incident log](docs/playbook.png)
 
 ## Product decisions
 
@@ -35,6 +38,8 @@ That works for one house. It breaks the moment a second owner asks for help. Sta
 | Revenue is split across months by nights | A stay from 29 December to 3 January belongs to both months. Counting it all on check-in would inflate one month and hide the other. |
 | Cleaning is created by the reservation, not typed in | It happens after every stay, so the app adds it on checkout day and keeps it in step if the dates change. Forgetting to pay the team is the error this prevents. |
 | Totals are kept per currency | Owners in Brazil and Portugal are paid in BRL and EUR. Adding them up would need an exchange rate nobody agreed on. |
+| A rule is suggested on the second occurrence, not the first | One late checkout is an event. Two is a pattern worth a decision. Asking earlier would turn the playbook into a diary. |
+| Situations are grouped by name, with suggestions while typing | Free text keeps logging fast. Suggesting names already used keeps "Late checkout" from becoming five different spellings. |
 | Saved data upgrades itself | Browsers that used Layer 1 get their cleaning costs created on first load, so nobody loses their reservations. |
 
 ## Roadmap
@@ -43,7 +48,7 @@ Built in layers, each one usable on its own.
 
 1. **Guest messages and reservations** (done)
 2. **Finance:** payouts, cleaning and other costs, monthly result per property and owner (done)
-3. **Incident log and playbook:** record what went wrong in a stay and turn repeated cases into house rules
+3. **Incident log and playbook:** record what went wrong in a stay and turn repeated cases into house rules (done)
 4. **Pricing:** compare nightly rates with similar listings from periodic market snapshots
 5. **Accounts:** sign-in and a shared database so each owner sees their own properties
 
@@ -57,6 +62,7 @@ src/
   schedule.ts     when each message is due, and template filling
   seed.ts         fictional demo data
   finance.ts      monthly result, revenue split by nights, cleaning costs
+  playbook.ts     groups incidents by situation, finds repeats without a rule
   store.ts        saves to localStorage, upgrades older saved data
   components/     one file per screen
 ```
