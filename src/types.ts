@@ -91,8 +91,31 @@ export interface PlaybookEntry {
   updatedOn: string
 }
 
+/** Where a comparable listing sits against yours. */
+export type MarketTier = 'mine' | 'higher' | 'lower'
+
+export type MarketStatus = 'available' | 'unavailable' | 'min_nights'
+
+/** One listing, for one date window, as seen in one market snapshot. */
+export interface MarketObservation {
+  propertyId: ID
+  snapshotDate: string
+  listingId: string
+  listingName: string
+  tier: MarketTier
+  window: string
+  checkIn: string
+  checkOut: string
+  guests: number
+  status: MarketStatus
+  nightly?: number
+  discount: boolean
+  /** Set by the analysis when the price comes from a longer stay than the window. */
+  longerStay?: boolean
+}
+
 export interface AppData {
-  version: 3
+  version: 4
   owners: Owner[]
   properties: Property[]
   reservations: Reservation[]
@@ -101,4 +124,5 @@ export interface AppData {
   expenses: Expense[]
   incidents: Incident[]
   playbook: PlaybookEntry[]
+  market: MarketObservation[]
 }

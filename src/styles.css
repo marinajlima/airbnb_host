@@ -299,3 +299,25 @@ section > .link-button { margin-top: 8px; padding-left: 0; }
 .rules { grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); }
 .property-foot { gap: 12px; }
 .property-foot > span:last-child { white-space: nowrap; }
+
+/* Pricing */
+.filters { display: flex; gap: 16px; flex-wrap: wrap; }
+.filters label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; color: var(--tide-2); }
+.filters select { min-width: 160px; }
+.callout.ok { background: var(--seaglass-soft); color: var(--seaglass); }
+.market-move { margin: 0; }
+table.pricing { min-width: 860px; }
+.gap { display: block; font-size: 12.5px; font-weight: 600; }
+.gap.below { color: var(--sun); }
+.gap.above { color: var(--late); }
+.gap.even { color: var(--seaglass); }
+.soldout { display: inline-flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+.soldout-bar { width: 56px; height: 6px; border-radius: 3px; background: #edf1ef; overflow: hidden; }
+.soldout-bar span { display: block; height: 100%; background: var(--tide-2); }
+.flag { display: block; margin-top: 4px; font-size: 12px; font-weight: 600; color: #7a5208; }
+.detail-row td { background: var(--salt); padding: 12px 18px; }
+.listings { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-width: 620px; }
+.listings li { display: grid; grid-template-columns: 72px 1fr auto; gap: 12px; align-items: baseline; font-size: 14px; padding: 4px 0; }
+.listings li.mine { font-weight: 600; }
+.tier { font-size: 12px; font-weight: 600; color: var(--tide-2); }
+.tier.mine { color: var(--seaglass); }

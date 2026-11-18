@@ -9,13 +9,15 @@ import { TemplatesView } from './components/TemplatesView'
 import { MessageDrawer } from './components/MessageDrawer'
 import { FinanceView } from './components/FinanceView'
 import { PlaybookView } from './components/PlaybookView'
+import { PricingView } from './components/PricingView'
 
-type View = 'today' | 'reservations' | 'finance' | 'playbook' | 'properties' | 'templates'
+type View = 'today' | 'reservations' | 'finance' | 'pricing' | 'playbook' | 'properties' | 'templates'
 
 const NAV: { id: View; label: string }[] = [
   { id: 'today', label: 'Today' },
   { id: 'reservations', label: 'Reservations' },
   { id: 'finance', label: 'Finance' },
+  { id: 'pricing', label: 'Pricing' },
   { id: 'playbook', label: 'Playbook' },
   { id: 'properties', label: 'Properties' },
   { id: 'templates', label: 'Message templates' },
@@ -95,6 +97,7 @@ export default function App() {
 
       <main className="main">
         {view === 'today' && <TodayView data={data} tasks={tasks} propertyId={propertyId} onOpenTask={(t) => setOpenTaskKey(t.key)} onTogglePaid={togglePaid} onResolve={resolveIncident} onOpenPlaybook={() => setView('playbook')} />}
+        {view === 'pricing' && <PricingView data={data} setData={setData} propertyId={propertyId} />}
         {view === 'playbook' && <PlaybookView data={data} setData={setData} propertyId={propertyId} />}
         {view === 'finance' && <FinanceView data={data} setData={setData} propertyId={propertyId} />}
         {view === 'reservations' && <ReservationsView data={data} setData={setData} propertyId={propertyId} />}

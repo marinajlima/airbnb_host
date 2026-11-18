@@ -1,4 +1,4 @@
-import type { AppData } from './types'
+import type { AppData, MarketObservation, MarketTier } from './types'
 import { addDays, today } from './dates'
 import { cleaningFor } from './finance'
 
@@ -9,7 +9,7 @@ import { cleaningFor } from './finance'
 export function makeSeed(t = today()): AppData {
   const d = (n: number) => addDays(t, n)
   const data: AppData = {
-    version: 3,
+    version: 4,
     owners: [
       { id: 'o1', name: 'Ana Duarte', email: 'ana@example.com' },
       { id: 'o2', name: 'Rafael Costa', email: 'rafael@example.com' },
@@ -116,6 +116,7 @@ export function makeSeed(t = today()): AppData {
       { id: 'i4', propertyId: 'p2', date: d(-30), category: 'maintenance', situation: 'No hot water', whatHappened: 'No hot water in the morning.', howHandled: 'Plumber visit, the boiler valve was replaced.', status: 'resolved' },
       { id: 'i5', propertyId: 'p2', reservationId: 'r2', date: d(-1), category: 'maintenance', situation: 'No hot water', whatHappened: 'Boiler pressure dropped on the second night.', howHandled: 'João reset the boiler pressure on site.', status: 'resolved' },
     ],
+    market: [],
     playbook: [
       {
         id: 'pb1',
@@ -136,5 +137,58 @@ export function makeSeed(t = today()): AppData {
     { id: 'x3', propertyId: 'p2', date: d(-4), category: 'utilities', amount: 68, description: 'Electricity and internet', paid: true },
     { id: 'x4', propertyId: 'p1', date: d(10), category: 'utilities', amount: 390, description: 'Electricity bill', paid: false },
   ]
+  data.market = makeMarket(d)
   return data
+}
+
+/**
+ * Two fictional market snapshots for Casa Maré: one 10 days ago, one 3 days ago.
+ * Prices and availability follow a simple demand curve so each window tells a different story.
+ */
+function makeMarket(d: (n: number) => string): MarketObservation[] {
+  const listings: { id: string; name: string; tier: MarketTier; base: number }[] = [
+    { id: 'm0', name: 'Casa Maré', tier: 'mine', base: 1100 },
+    { id: 'h1', name: 'Villa Coral, 6 suites', tier: 'higher', base: 1650 },
+    { id: 'h2', name: 'Casa Alto Mar, pool', tier: 'higher', base: 1480 },
+    { id: 'h3', name: 'Casa dos Ventos, beachfront', tier: 'higher', base: 1560 },
+    { id: 'l1', name: 'Chalé Brisa', tier: 'lower', base: 820 },
+    { id: 'l2', name: 'Casa Areia', tier: 'lower', base: 900 },
+    { id: 'l3', name: 'Refúgio do Coqueiral', tier: 'lower', base: 960 },
+    { id: 'l4', name: 'Casa Vento Leste', tier: 'lower', base: 780 },
+    { id: 'l5', name: 'Casa Pé de Coco', tier: 'lower', base: 870 },
+  ]
+  const windows = [
+    { name: 'W1', start: 15, nights: 3, demand: 0.2, mine: 1100 },
+    { name: 'W2', start: 29, nights: 3, demand: 0.45, mine: 1100 },
+    { name: 'W3', start: 43, nights: 4, demand: 0.75, mine: 1300 },
+    { name: 'W4', start: 57, nights: 3, demand: 0.3, mine: 0 },
+    { name: 'W5', start: 71, nights: 3, demand: 0.65, mine: 1100 },
+    { name: 'W6', start: 85, nights: 4, demand: 0.4, mine: 1150 },
+  ]
+  const out: MarketObservation[] = []
+  ;[-10, -3].forEach((snap, s) => {
+    windows.forEach((w, wi) => {
+      listings.forEach((l, k) => {
+        const busy = ((k * 7 + wi * 13 + s * 3) % 10) / 10 < w.demand + s * 0.05
+        const mineBooked = l.tier === 'mine' && w.mine === 0
+        const available = l.tier === 'mine' ? !mineBooked : !busy
+        const price = l.tier === 'mine' ? w.mine : Math.round((l.base * (1 + w.demand * 0.6) * (1 + s * 0.04)) / 10) * 10
+        out.push({
+          propertyId: 'p1',
+          snapshotDate: d(snap),
+          listingId: l.id,
+          listingName: l.name,
+          tier: l.tier,
+          window: w.name,
+          checkIn: d(w.start),
+          checkOut: d(w.start + w.nights),
+          guests: 4,
+          status: available ? 'available' : 'unavailable',
+          nightly: available ? price : undefined,
+          discount: false,
+        })
+      })
+    })
+  })
+  return out
 }

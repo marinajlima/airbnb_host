@@ -53,6 +53,7 @@ export function PropertiesView({ data, setData }: Props) {
         expenses: d.expenses.filter((e) => e.propertyId !== p.id),
         incidents: d.incidents.filter((i) => i.propertyId !== p.id),
         playbook: d.playbook.filter((e) => e.propertyId !== p.id),
+        market: d.market.filter((m) => m.propertyId !== p.id),
       }
     })
   }
