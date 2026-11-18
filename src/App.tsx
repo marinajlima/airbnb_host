@@ -7,12 +7,14 @@ import { ReservationsView } from './components/ReservationsView'
 import { PropertiesView } from './components/PropertiesView'
 import { TemplatesView } from './components/TemplatesView'
 import { MessageDrawer } from './components/MessageDrawer'
+import { FinanceView } from './components/FinanceView'
 
-type View = 'today' | 'reservations' | 'properties' | 'templates'
+type View = 'today' | 'reservations' | 'finance' | 'properties' | 'templates'
 
 const NAV: { id: View; label: string }[] = [
   { id: 'today', label: 'Today' },
   { id: 'reservations', label: 'Reservations' },
+  { id: 'finance', label: 'Finance' },
   { id: 'properties', label: 'Properties' },
   { id: 'templates', label: 'Message templates' },
 ]
@@ -39,6 +41,9 @@ export default function App() {
       }
     })
   }
+
+  const togglePaid = (expenseId: string) =>
+    setData((d) => ({ ...d, expenses: d.expenses.map((e) => (e.id === expenseId ? { ...e, paid: !e.paid } : e)) }))
 
   return (
     <div className="shell">
@@ -84,7 +89,8 @@ export default function App() {
       </aside>
 
       <main className="main">
-        {view === 'today' && <TodayView data={data} tasks={tasks} propertyId={propertyId} onOpenTask={(t) => setOpenTaskKey(t.key)} />}
+        {view === 'today' && <TodayView data={data} tasks={tasks} propertyId={propertyId} onOpenTask={(t) => setOpenTaskKey(t.key)} onTogglePaid={togglePaid} />}
+        {view === 'finance' && <FinanceView data={data} setData={setData} propertyId={propertyId} />}
         {view === 'reservations' && <ReservationsView data={data} setData={setData} propertyId={propertyId} />}
         {view === 'properties' && <PropertiesView data={data} setData={setData} />}
         {view === 'templates' && <TemplatesView data={data} setData={setData} />}

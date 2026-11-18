@@ -9,9 +9,10 @@ interface Props {
   tasks: MessageTask[]
   propertyId: string
   onOpenTask: (t: MessageTask) => void
+  onTogglePaid: (expenseId: string) => void
 }
 
-export function TodayView({ data, tasks, propertyId, onOpenTask }: Props) {
+export function TodayView({ data, tasks, propertyId, onOpenTask, onTogglePaid }: Props) {
   const now = today()
   const toSend = tasks.filter((t) => t.state === 'overdue' || t.state === 'today')
   const next = tasks.find((t) => t.state === 'upcoming')
@@ -75,6 +76,8 @@ export function TodayView({ data, tasks, propertyId, onOpenTask }: Props) {
           <ul className="rows">
             {movements.map((m) => {
               const p = props.get(m.r.propertyId)!
+              const cleaning =
+                m.kind === 'Departure' ? data.expenses.find((e) => e.reservationId === m.r.id && e.category === 'cleaning') : undefined
               return (
                 <li key={`${m.kind}-${m.r.id}`} className="row">
                   <span className="date-chip">
@@ -89,10 +92,16 @@ export function TodayView({ data, tasks, propertyId, onOpenTask }: Props) {
                       {p.name}, {m.r.guests} guests,{' '}
                       {m.kind === 'Arrival'
                         ? `from ${p.checkInTime} with ${p.hostName}`
-                        : `until ${p.checkOutTime}. Pay cleaning ${money(p.cleaningCost, p.currency)}`}
+                        : `until ${p.checkOutTime}`}
+                      {cleaning && `. Cleaning ${money(cleaning.amount, p.currency)} ${cleaning.paid ? 'paid' : 'to pay'}`}
                     </span>
                     {m.r.notes && <span className="note">{m.r.notes}</span>}
                   </div>
+                  {cleaning && (
+                    <button className={cleaning.paid ? 'btn ghost' : 'btn'} onClick={() => onTogglePaid(cleaning.id)}>
+                      {cleaning.paid ? 'Mark as not paid' : 'Mark as paid'}
+                    </button>
+                  )}
                 </li>
               )
             })}

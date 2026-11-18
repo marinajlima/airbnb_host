@@ -1,6 +1,17 @@
 import { useEffect, useState } from 'react'
 import type { AppData } from './types'
 import { makeSeed } from './seed'
+import { cleaningFor } from './finance'
+
+/** Data saved before Layer 2 had no costs: create the cleaning cost for each existing stay. */
+function migrateV1(old: Omit<AppData, 'version' | 'expenses'>): AppData {
+  const props = new Map(old.properties.map((p) => [p.id, p]))
+  const expenses = old.reservations.flatMap((r) => {
+    const p = props.get(r.propertyId)
+    return p && p.cleaningCost > 0 ? [cleaningFor(r, p)] : []
+  })
+  return { ...old, version: 2, expenses }
+}
 
 const KEY = 'stayops:v1'
 
@@ -8,8 +19,9 @@ function load(): AppData {
   try {
     const raw = localStorage.getItem(KEY)
     if (raw) {
-      const parsed = JSON.parse(raw) as AppData
-      if (parsed.version === 1) return parsed
+      const parsed = JSON.parse(raw)
+      if (parsed.version === 2) return parsed as AppData
+      if (parsed.version === 1) return migrateV1(parsed)
     }
   } catch {
     // storage unavailable or corrupted: fall back to demo data

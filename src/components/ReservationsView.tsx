@@ -2,6 +2,7 @@ import { useState, type Dispatch, type FormEvent, type SetStateAction } from 're
 import type { AppData, Reservation } from '../types'
 import { extraGuests, money, nights, stayStatus } from '../schedule'
 import { addDays, fmtShort, today, uid } from '../dates'
+import { syncCleaning } from '../finance'
 
 interface Props {
   data: AppData
@@ -34,12 +35,13 @@ export function ReservationsView({ data, setData, propertyId }: Props) {
     notes: '',
   })
 
-  const save = (r: Reservation) => {
-    setData((d) =>
-      r.id
-        ? { ...d, reservations: d.reservations.map((x) => (x.id === r.id ? r : x)) }
-        : { ...d, reservations: [...d.reservations, { ...r, id: uid() }] },
-    )
+  const save = (input: Reservation) => {
+    setData((d) => {
+      const r = input.id ? input : { ...input, id: uid() }
+      const reservations = input.id ? d.reservations.map((x) => (x.id === r.id ? r : x)) : [...d.reservations, r]
+      const p = d.properties.find((x) => x.id === r.propertyId)
+      return { ...d, reservations, expenses: p ? syncCleaning(d.expenses, r, p) : d.expenses }
+    })
     setEditing(null)
   }
 
@@ -49,6 +51,7 @@ export function ReservationsView({ data, setData, propertyId }: Props) {
       ...d,
       reservations: d.reservations.filter((x) => x.id !== r.id),
       sent: d.sent.filter((s) => s.reservationId !== r.id),
+      expenses: d.expenses.filter((e) => e.reservationId !== r.id),
     }))
   }
 
@@ -61,7 +64,7 @@ export function ReservationsView({ data, setData, propertyId }: Props) {
             <th scope="col">Property</th>
             <th scope="col">Stay</th>
             <th scope="col" className="num">Guests</th>
-            <th scope="col" className="num">Total</th>
+            <th scope="col" className="num">Payout</th>
             <th scope="col">Status</th>
             <th scope="col"><span className="sr-only">Actions</span></th>
           </tr>
@@ -182,7 +185,7 @@ function ReservationForm({
           <input type="number" min={1} value={r.guests} onChange={(e) => set('guests', Number(e.target.value))} />
         </label>
         <label>
-          Total paid {property && `(${property.currency})`}
+          Host payout {property && `(${property.currency})`}
           <input type="number" min={0} value={r.total} onChange={(e) => set('total', Number(e.target.value))} />
         </label>
         <label>

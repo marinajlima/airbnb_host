@@ -1,5 +1,6 @@
 import type { AppData } from './types'
 import { addDays, today } from './dates'
+import { cleaningFor } from './finance'
 
 /**
  * Demo data only. Names, prices and places are fictional.
@@ -7,8 +8,8 @@ import { addDays, today } from './dates'
  */
 export function makeSeed(t = today()): AppData {
   const d = (n: number) => addDays(t, n)
-  return {
-    version: 1,
+  const data: AppData = {
+    version: 2,
     owners: [
       { id: 'o1', name: 'Ana Duarte', email: 'ana@example.com' },
       { id: 'o2', name: 'Rafael Costa', email: 'rafael@example.com' },
@@ -107,5 +108,16 @@ export function makeSeed(t = today()): AppData {
       { reservationId: 'r4', templateId: 't1', sentOn: d(-12) },
       { reservationId: 'r5', templateId: 't1', sentOn: d(-3) },
     ],
+    expenses: [],
   }
+
+  const props = new Map(data.properties.map((p) => [p.id, p]))
+  data.expenses = [
+    ...data.reservations.map((r, i) => ({ ...cleaningFor(r, props.get(r.propertyId)!, t), id: `e${i + 1}` })),
+    { id: 'x1', propertyId: 'p1', date: d(-12), category: 'maintenance', amount: 480, description: 'Pool pump repair', paid: true },
+    { id: 'x2', propertyId: 'p1', date: d(-6), category: 'supplies', amount: 260, description: 'Towels and bed linen', paid: true },
+    { id: 'x3', propertyId: 'p2', date: d(-4), category: 'utilities', amount: 68, description: 'Electricity and internet', paid: true },
+    { id: 'x4', propertyId: 'p1', date: d(10), category: 'utilities', amount: 390, description: 'Electricity bill', paid: false },
+  ]
+  return data
 }

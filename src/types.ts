@@ -51,11 +51,26 @@ export interface SentMark {
   sentOn: string
 }
 
+export type ExpenseCategory = 'cleaning' | 'maintenance' | 'supplies' | 'utilities' | 'other'
+
+export interface Expense {
+  id: ID
+  propertyId: ID
+  date: string // YYYY-MM-DD, when it is paid or due
+  category: ExpenseCategory
+  amount: number
+  description: string
+  /** Set for costs created from a reservation, such as cleaning on checkout day. */
+  reservationId?: ID
+  paid: boolean
+}
+
 export interface AppData {
-  version: 1
+  version: 2
   owners: Owner[]
   properties: Property[]
   reservations: Reservation[]
   templates: MessageTemplate[]
   sent: SentMark[]
+  expenses: Expense[]
 }

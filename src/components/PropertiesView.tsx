@@ -50,6 +50,7 @@ export function PropertiesView({ data, setData }: Props) {
         properties: d.properties.filter((x) => x.id !== p.id),
         reservations: d.reservations.filter((r) => !ids.has(r.id)),
         sent: d.sent.filter((s) => !ids.has(s.reservationId)),
+        expenses: d.expenses.filter((e) => e.propertyId !== p.id),
       }
     })
   }
